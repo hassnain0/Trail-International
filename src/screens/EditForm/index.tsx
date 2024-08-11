@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {submitData} from '../../components/KoboToolbox';
+import {updateForm} from '../../components/KoboToolbox';
 interface CustomInputProps {
   label: string;
   value: string;
@@ -39,82 +39,101 @@ const CustomInput: React.FC<CustomInputProps> = ({
   );
 };
 
-const FormScreen: React.FC = () => {
-  const navigation = useNavigation();
+type ItemType = {
+  // Define the shape of the item object here
+  URL: string;
+  Username: string;
+  Password: string;
+  // Add other properties as needed
+};
 
-  const [url, setUrl] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+type EditFormProps = {
+  route: {
+    params: {
+      item: ItemType;
+    };
+  };
+};
+const EditForm: React.FC<EditFormProps> = ({route}) => {
+  let item = route?.params?.item;
+
+  const [data, setData] = useState({
+    Url: '',
+    Username: '',
+    Password: '',
+  });
+
+  const navigation = useNavigation();
 
   const handleBackPress = () => {
     navigation.goBack();
   };
+
+  useEffect(() => {
+    if (item) {
+      setData({
+        Url: item.URL,
+        Username: item.Username, // Provide default value
+        Password: item.Password, // Provide default value
+      });
+    }
+  }, []);
+
   const renderHeader = () => (
     <View style={styles.header}>
       <TouchableOpacity onPress={handleBackPress}>
         <AntDesign name="arrowleft" color={'black'} size={28} />
       </TouchableOpacity>
-      <Text style={styles.headerText}>Ajouter un nouveau projet</Text>
+      <Text style={styles.headerText}>Form ID: {item._id}</Text>
     </View>
   );
 
-  const handleAddPress = async () => {
+  const handleSavePress = async item => {
     try {
-if(!url ||!username||!password){
-  Alert.alert("Please fill the required data")
-  return;
-}
-      const data={
-          id: 'aVKbqVF39UmEUAggvp5SgE',
-          submission: {
-            URL: url,
-            Usernmae: username,
-            Password: password,
-          },
-      }
-      const response= await submitData(data);
-      if(response){
-        Alert.alert("Form Successfully Submitted");
-        EmptyFeilds();       }
-       else{
-        Alert.alert("Form not Submitted");
-        EmptyFeilds();
-       }
+      const updatedData = {
+        URL: data.Url,
+        Username: data.Username,
+        Password: data.Password,
+      };
+      const response = await updateForm(item._id,item._uuid, updatedData);
     } catch (error) {
       console.log('Error', error);
     }
   };
 
-  const EmptyFeilds=()=>{
-    setUrl('');
-    setUsername('');
-    setPassword('');
-  }
+  const EmptyFeilds = () => {
+    setData({
+      Url: '',
+      Username: '',
+      Password: '',
+    });
+  };
   return (
     <View style={styles.container}>
       {renderHeader()}
       <View style={styles.contentContainer}>
         <CustomInput
           label="URL"
-          value={url}
-          onChangeText={setUrl}
+          value={data?.Url}
+          onChangeText={value => setData({...data, Url: value})}
           placeholder="Enter URL"
         />
         <CustomInput
           label="Nom d'utilisateur"
-          value={username}
-          onChangeText={setUsername}
+          value={data?.Username}
+          onChangeText={value => setData({...data, Username: value})}
           placeholder="Enter Username"
         />
         <CustomInput
           label="Mot de passe"
-          value={password}
-          onChangeText={setPassword}
+          value={data?.Password}
+          onChangeText={value => setData({...data, Password: value})}
           placeholder="Enter Password"
-          secureTextEntry
         />
-        <TouchableOpacity style={styles.button} onPress={handleAddPress}>
-          <Text style={styles.buttonText}>Add</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => handleSavePress(item)}>
+          <Text style={styles.buttonText}>Save</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -174,6 +193,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-
-export default FormScreen;
+export default EditForm;

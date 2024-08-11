@@ -8,6 +8,7 @@ import DownloadForm from './src/screens/DownloadForm';
 import DownloadFormFr from './src/screens/DownloadFormFr';
 import ReadyToSendScreen from './src/screens/ReadyToSend';
 import Deleteforms from './src/screens/DeleteForm';
+import EditForm from './src/screens/EditForm';
 
 const Stack = createStackNavigator();
 
@@ -25,6 +26,7 @@ const App: React.FC = () => {
         <Stack.Screen name="DownloadFormFr" component={DownloadFormFr} />
         <Stack.Screen name="ReadyToSendScreen" component={ReadyToSendScreen} />
         <Stack.Screen name="Deleteforms" component={Deleteforms} />
+        <Stack.Screen name="EditForm" component={EditForm} />
       </Stack.Navigator>
     </NavigationContainer>
   );
