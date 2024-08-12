@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-
 const Token = "61612befa2d17aa1183ace6d247ccb98ac3ccfa4";
 
 
+
 export const submitData = async data => {
-  const url = 'https://kc.kobotoolbox.org/api/v1/submissions';
+  const url = 'https://kc-eu.kobotoolbox.org/api/v1/submissions';
   try {
     const response = await axios.post(url, data, {
       auth: {
@@ -23,9 +23,7 @@ export const submitData = async data => {
 };
 
 
-
 export const updateForm = async (formId, submissionId, data) => {
-
   const url = `https://kc-eu.kobotoolbox.org/api/v2/assets/${formId}/data/${submissionId}/`;
 
   try {
@@ -48,28 +46,23 @@ export const updateForm = async (formId, submissionId, data) => {
 }
 
 
-
-
 //Get Forms Method
 export const getForms = async () => {
   try {
-    const api =`https://kc.kobotoolbox.org/api/v1/data`;
+    const api = 'https://eu.kobotoolbox.org/api/v2/assets/aq5sZfR2PcLxCj5jdsmcBQ/data';
     const response = await axios.get(api, {
       headers: {
         Authorization: `Token ${Token}`,
         'Content-Type': 'application/json',
       },
     });
-    if (response.data) {
-      console.log(response.data)
+    if (response.data?.results) {
       return response.data?.results;
     }
   } catch (err) {
     console.log('Error', err);
   }
 };
-
-
 
 
 // Delete Form Method
