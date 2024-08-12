@@ -70,10 +70,11 @@ const EditForm: React.FC<EditFormProps> = ({route}) => {
   };
 
   useEffect(() => {
+    console.log("Item",item)
     if (item) {
       setData({
         Url: item.URL,
-        Username: item.Username, // Provide default value
+        Username: item.Usernmae, // Provide default value
         Password: item.Password, // Provide default value
       });
     }
@@ -96,6 +97,7 @@ const EditForm: React.FC<EditFormProps> = ({route}) => {
         Password: data.Password,
       };
       const response = await updateForm(item._id,item._uuid, updatedData);
+      
     } catch (error) {
       console.log('Error', error);
     }

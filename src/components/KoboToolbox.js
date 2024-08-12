@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const Token = "61612befa2d17aa1183ace6d247ccb98ac3ccfa4";
-
+const assetId="aVKbqVF39UmEUAggvp5SgE"
 
 
 export const submitData = async data => {
@@ -23,25 +23,26 @@ export const submitData = async data => {
 };
 
 
-export const updateForm = async (formId, submissionId, data) => {
-  const url = `https://kc-eu.kobotoolbox.org/api/v2/assets/${formId}/data/${submissionId}/`;
 
+export const updateForm = async (formId, submissionId, data) => {
   try {
-    await axios.put(url, data, {
-      headers: {
-        'Authorization': `Token ${Token}`,
-        'Content-Type': 'application/json',
-        'Referer': 'https://kc-eu.kobotoolbox.org/'
+    console.log("Token ",Token)
+    const apiUrl=`https://kf.kobotoolbox.org/api/v2/assets/${assetId}/data/${submissionId}/enketo/edit/?return_url=false`;
+    const response = await axios.get(apiUrl,
+      {
+        headers: {
+          "Authorization": `Token ${Token}`, // Replace with your actual token
+        },
       }
-    });
-    console.log('Form updated successfully');
+    );
+    // The URL to open the instance in Enketo for editing
+    const enketoEditUrl = response.data.url;
+    console.log('Enketo Edit URL:', enketoEditUrl);
+
+    return enketoEditUrl;
   } catch (error) {
-    if (error.response) {
-      console.error('Error updating the form:', error.response.data);
-      console.error('Status Code:', error.response.status);
-    } else {
-      console.error('Error message:', error.message);
-    }
+    console.error('Error fetching Enketo edit URL:', error.response.data);
+    throw error;
   }
 }
 
@@ -49,7 +50,7 @@ export const updateForm = async (formId, submissionId, data) => {
 //Get Forms Method
 export const getForms = async () => {
   try {
-    const api = 'https://eu.kobotoolbox.org/api/v2/assets/aq5sZfR2PcLxCj5jdsmcBQ/data';
+    const api = `https://kf.kobotoolbox.org/api/v2/assets/${assetId}/data`;
     const response = await axios.get(api, {
       headers: {
         Authorization: `Token ${Token}`,
@@ -69,10 +70,10 @@ export const getForms = async () => {
 
 export const deleteForm = async formId => {
   try {
-    const api = `https://eu.kobotoolbox.org/api/v2/assets/aq5sZfR2PcLxCj5jdsmcBQ/data/${formId}/`;
+    const api = `https://kf.kobotoolbox.org/api/v2/assets/${assetId}/data/${formId}/`;
     const response = await axios.delete(api, {
       headers: {
-        Authorization: 'Token fe3b7bc9cb1df4c1d15bff055a0c47b49aecb171',
+        Authorization:`Token ${Token}`,
         'Content-Type': 'application/json',
       },
     });

@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   View,
   TouchableWithoutFeedback,
   Text,
@@ -16,12 +17,13 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {getForms} from '../../components/KoboToolbox';
 import {PermissionsAndroid, Platform} from 'react-native';
 import {Alert} from 'react-native';
-
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 const DownloadForm: React.FC = () => {
   //Use state hooks
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedForm, setSelectedForm] = useState();
   const [forms, setForms] = useState<Form[]>([]);
+  const [loading,setLoading]=useState(true)
   const navigation = useNavigation();
 
   type Form = {
@@ -48,6 +50,7 @@ const DownloadForm: React.FC = () => {
     async function FetchData() {
       const response: Form[] = await getForms();
       setForms(response);
+      setLoading(false)
     }
     FetchData();
   });
@@ -65,55 +68,46 @@ const DownloadForm: React.FC = () => {
           fileName: 'FormKoboToolBox',
           directory: 'Documents',
         };
-
         // Generate PDF
         const file = await RNHTMLtoPDF.convert(options);
-
         // Save to Downloads folder
         const downloadPath = `${RNFS.ExternalStorageDirectoryPath}/Download/FormKoboToolBox.pdf`;
-
         await RNFS.moveFile(file.filePath, downloadPath);
         console.log('Path', downloadPath);
         // Notify user
         Alert.alert('PDF Saved', `PDF saved to ${downloadPath}`);
-      } else {
-        Alert.alert(
-          'Permission Denied',
-          'Storage permission is required to save the file.',
-        );
-      }
-    } catch (error) {
-      console.log('Error', error);
-      Alert.alert('Error', 'Failed to save PDF');
-    }
+    } 
+  }catch (error) {
+    console.log('Error', error);
+    Alert.alert('Error', 'Failed to save PDF');
+  }
+  
   };
 
   const checkPermissions = async () => {
     try {
-      // Request permissions on Android
-      if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'Storage Permission',
-            message: 'This app needs access to your storage to save the PDF.',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          },
-        );
-        if (granted == 'granted') {
-          return true;
-        } else {
-          Alert.alert(
-            'Permission Denied',
-            'You need to grant storage permission to save the PDF.',
-          );
-          return false;
-        }
+      if (Number(Platform.Version) >= 33) {
+        return true;
       }
-    } catch (err) {
-      console.log('Erro', err);
+    
+      const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+    
+      const hasPermission = await PermissionsAndroid.check(permission);
+      if (hasPermission) {
+        return true;
+      }
+      const status = await PermissionsAndroid.request(permission);
+       if(status === 'granted'){
+        return status === 'granted';
+       }
+       else{
+        return false
+       }
+      
+    } catch (error) {
+      console.warn(error);
+      Alert.alert('Error', 'An error occurred while handling permissions.');
+      return false;
     }
   };
 
@@ -139,7 +133,10 @@ const DownloadForm: React.FC = () => {
   return (
     <View style={styles.container}>
       {renderHeader()}
-      {!forms ||
+      {loading ?(
+         <ActivityIndicator size="large" color="#0000ff" style={styles.activityIndicator} />
+
+      ):!forms ||
         (forms.length === 0 && (
           <View style={styles.content}>
             <Image
@@ -306,6 +303,11 @@ const styles = StyleSheet.create({
   downloadButton: {
     width: 20,
     height: 20,
+  },
+  activityIndicator: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

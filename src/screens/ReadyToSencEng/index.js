@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity, FlatList} from 'react-native';
+import {View, Text, StyleSheet, Image, ActivityIndicator,TouchableOpacity, FlatList} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { getForms } from '../../components/KoboToolbox';
@@ -8,14 +8,8 @@ import EditForm from '../EditForm';
 const ReadyToSendScreenEng = () => {
   const navigation = useNavigation();
   const [forms, setForms] = useState([]);
+  const [loading,setLoading]=useState(true)
 
-  // type Form = {
-  //   Password: string;
-  //   URL: string;
-  //   Username: string;
-  //   _id: number;
-  //   _uuid: string;
-  // };
   const handleBackPress = () => {
     navigation.goBack();
   };
@@ -31,6 +25,7 @@ const ReadyToSendScreenEng = () => {
     async function FetchData() {
       const response= await getForms();
       setForms(response);
+      setLoading(false)
     }
     FetchData();
   });
@@ -53,7 +48,9 @@ const ReadyToSendScreenEng = () => {
   return (
     <View style={styles.container}>
       {renderHeader()}
-      {!forms || forms.length==0 &&(
+      {loading ?(
+         <ActivityIndicator size="large" color="#0000ff" style={styles.activityIndicator} />
+      ):!forms || forms.length==0 &&(
       <View style={styles.content}>
         {/* <FontAwesome5 name='edit' color={'#1160AA'} size={30} /> */}
         <Image
@@ -166,6 +163,11 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
   },
+  activityIndicator:{
+    flex:1,
+    alignItems:'center',
+    justifyContent:'center'
+  }
 });
 
 export default ReadyToSendScreenEng;
