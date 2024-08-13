@@ -1,5 +1,5 @@
 import React ,{useEffect,useState,} from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity, FlatList,TouchableWithoutFeedback,Modal, Alert} from 'react-native';
+import {View, Text, StyleSheet, Image, TouchableOpacity, FlatList,TouchableWithoutFeedback,Modal, Alert, ActivityIndicator} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { deleteForm, getForms } from '../../components/KoboToolbox';
@@ -7,6 +7,7 @@ import { deleteForm, getForms } from '../../components/KoboToolbox';
 const Deleteforms: React.FC = () => {
   const navigation = useNavigation();
 
+  const [loading,setLoading]=useState(true);
   //State hooks
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedForm, setSelectedForm] = useState();
@@ -52,6 +53,7 @@ const Deleteforms: React.FC = () => {
     async function FetchData() {
       const response: Form[] = await getForms();
       setForms(response);
+      setLoading(false)
     }
     FetchData();
   });
@@ -72,7 +74,14 @@ const DeleteForm=async(item)=>{
   return (
     <View style={styles.container}>
       {renderHeader()}
-     {!forms || (forms.length===0&&(
+      {loading ? (
+        <ActivityIndicator
+          size="large"
+          color="#0000ff"
+          style={styles.activityIndicator}
+        />
+      ) : (
+     !forms || (forms.length===0&&(
       <View style={styles.content}>
         {/* <FontAwesome5 name='edit' color={'#1160AA'} size={30} /> */}
         <Image
@@ -84,7 +93,7 @@ const DeleteForm=async(item)=>{
           When you have saved forms they will appear here.
         </Text>
       </View>
-     ))}
+     )))}
       <View>
         <FlatList
           data={forms}
@@ -218,6 +227,11 @@ const styles = StyleSheet.create({
   downloadButton: {
     width: 20,
     height: 20,
+  },
+  activityIndicator: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -70,7 +70,6 @@ const EditForm: React.FC<EditFormProps> = ({route}) => {
   };
 
   useEffect(() => {
-    console.log("Item",item)
     if (item) {
       setData({
         Url: item.URL,
@@ -90,14 +89,21 @@ const EditForm: React.FC<EditFormProps> = ({route}) => {
   );
 
   const handleSavePress = async item => {
+    if(!data.Url ||!data.Username||!data.Password){
+      Alert.alert("Please fill the required data")
+      return;
+    }
+
     try {
       const updatedData = {
         URL: data.Url,
-        Username: data.Username,
+        Usernmae: data.Username,
         Password: data.Password,
       };
-      const response = await updateForm(item._id,item._uuid, updatedData);
-      
+      const response = await updateForm(item._id, updatedData);
+      if(response){
+        Alert.alert("Successfully Updated")
+      }
     } catch (error) {
       console.log('Error', error);
     }

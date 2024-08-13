@@ -22,27 +22,31 @@ export const submitData = async data => {
   }
 };
 
-
-
-export const updateForm = async (formId, submissionId, data) => {
+// https://kf.kobotoolbox.org/accounts/login/?next=/api/v2/assets/${assetId}/data/119085042/edit/?return_url=false
+export const updateForm = async (formId,data) => {
+  console.log("data",data)
+  const payload = {
+    payload:{
+    submission_ids: [formId], // Replace with your actual submission ID(s)
+    data: data
+  }
+};
   try {
-    console.log("Token ",Token)
-    const apiUrl=`https://kf.kobotoolbox.org/api/v2/assets/${assetId}/data/${submissionId}/enketo/edit/?return_url=false`;
-    const response = await axios.get(apiUrl,
-      {
-        headers: {
-          "Authorization": `Token ${Token}`, // Replace with your actual token
-        },
-      }
-    );
-    // The URL to open the instance in Enketo for editing
-    const enketoEditUrl = response.data.url;
-    console.log('Enketo Edit URL:', enketoEditUrl);
+    const api = `https://kf.kobotoolbox.org/api/v2/assets/${assetId}/data/bulk/`;
+    const response = await axios.patch(api, payload, {
+     
+      headers: {
+        "Authorization":`Token ${Token}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
-    return enketoEditUrl;
-  } catch (error) {
-    console.error('Error fetching Enketo edit URL:', error.response.data);
-    throw error;
+    if (response.status === 200) {
+      console.log('Form updated successfully:', response.data);
+      return response.data;
+    }
+  } catch (err) {
+    console.log('Error updating form:', err);
   }
 }
 
